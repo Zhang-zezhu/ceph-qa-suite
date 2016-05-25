@@ -1,0 +1,8 @@
+workload2:
+  full_sequential:
+    - workunit:
+        branch: hammer
+        clients:
+          client.0:
+            - cls
+    - print: "**** done cls 5-workload"

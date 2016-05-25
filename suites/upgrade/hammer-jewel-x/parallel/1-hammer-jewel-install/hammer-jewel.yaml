@@ -1,0 +1,15 @@
+tasks:
+- install:
+    branch: hammer
+- print: "**** done installing hammer"
+- ceph:
+    fs: xfs
+- print: "**** done ceph"
+- parallel:
+    - workload
+    - upgrade-sequence
+- print: "**** done parallel"
+- install.upgrade:
+    client.0:
+        branch: jewel
+- print: "*** client.0 upgraded to jewel"  
