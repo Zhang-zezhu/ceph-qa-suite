@@ -18,8 +18,17 @@ STDOUT="/var/tmp/stdout.$$"
 # $STDOUT and $STDERR are removed when the script exits for any reason
 trap  "rm -f $STDOUT $STDERR" 0
 
+# lock $LOG with file descriptor 200
+# if $LOC is locked by other process - wait for 420 sec
+exec 200>>$LOG
+# if flock failed, define a new $LOG and keep runing
+flock 200 || LOG="/var/log/crontab-nightlies-log/crontab_lock_problem.log"
+
+
 # log a name of the command about to be run
 echo "Running command: $@" >> $LOG
+# unlock 
+flock -u 200
 
 # run a command from this script's argument
 # redirect stdout to $STDOUT file and redirect stderr to $STDERR file
@@ -37,6 +46,10 @@ if [ $code != 0 ] ; then
 else
         # normal exit: just log stdout
         DATE=$(date)
-        echo -n "$DATE: " >> $LOG
-        cat $STDOUT  >> $LOG
+        # if flock failed, define a new $LOG and keep runing
+        flock 200 || $LOG
+        echo -n "$DATE: "  >> $LOG
+        cat $STDOUT   >> $LOG
+        # unlock 
+        flock -u 200
 fi
